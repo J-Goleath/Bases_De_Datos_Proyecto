@@ -1,0 +1,199 @@
+﻿USE master
+GO
+
+IF DB_ID ('Veterinaria_Proyecto') IS NOT NULL
+	DROP DATABASE Veterinaria_Proyecto;
+GO
+
+CREATE DATABASE Veterinaria_Proyecto;
+GO
+
+USE Veterinaria_Proyecto;
+GO
+
+CREATE TABLE Cliente(
+	ID_Cliente INT NOT NULL PRIMARY KEY,
+	Nombre VARCHAR (100) NOT NULL,
+	Apellido VARCHAR (100) NOT NULL,
+	Email VARCHAR (100) NOT NULL,
+	Telefono VARCHAR (15) NOT NULL,
+	Fk_Direccion INT NOT NULL
+);
+GO
+CREATE TABLE Veterinario(
+	ID_Veterinario INT NOT NULL PRIMARY KEY,
+	Nombre VARCHAR (100) NOT NULL,
+	Apellido VARCHAR (100) NOT NULL,
+	Email VARCHAR (100) NOT NULL,
+	Telefono VARCHAR (15) NOT NULL,
+	Fk_Direccion INT NOT NULL
+);
+GO
+CREATE TABLE Direccion(
+	ID_Direccion INT NOT NULL PRIMARY KEY,
+	Provincia VARCHAR (100) NOT NULL,
+	Canton VARCHAR (100) NOT NULL,
+	Distrito VARCHAR (100) NOT NULL,
+	Barrio VARCHAR (100) NOT NULL,
+	Direccion VARCHAR (100) NOT NULL
+);
+GO
+CREATE TABLE Animal(
+	ID_Animal INT NOT NULL PRIMARY KEY,
+	Edad INT NOT NULL,
+	Peso FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL,
+	Fk_Tipo INT NOT NULL
+);
+GO
+CREATE TABLE Mascota(
+	ID_Mascota INT NOT NULL PRIMARY KEY,
+	Fk_Cliente INT NOT NULL,
+	Fk_Animal INT NOT NULL,
+	Edad INT NOT NULL,
+	Peso FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Canino(
+	ID_Canino INT NOT NULL PRIMARY KEY,
+	Raza VARCHAR (100) NOT NULL,
+	Alimento VARCHAR (100) NOT NULL,
+	Medida_Alimento FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Felino(
+	ID_Felino INT NOT NULL PRIMARY KEY,
+	Raza VARCHAR (100) NOT NULL,
+	Alimento VARCHAR (100) NOT NULL,
+	Medida_Alimento FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Granja(
+	ID_Granja INT NOT NULL PRIMARY KEY,
+	Especie VARCHAR (100) NOT NULL,
+	Raza VARCHAR (100) NOT NULL,
+	Alimento VARCHAR (100) NOT NULL,
+	Medida_Alimento FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Roedor(
+	ID_Roedor INT NOT NULL PRIMARY KEY,
+	Especie VARCHAR (100) NOT NULL,
+	Alimento VARCHAR (100) NOT NULL,
+	Medida_Alimento FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Ave(
+	ID_Ave INT NOT NULL PRIMARY KEY,
+	Especie VARCHAR (100) NOT NULL,
+	Alimento VARCHAR (100) NOT NULL,
+	Medida_Alimento FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Pez(
+	ID_Pez INT NOT NULL PRIMARY KEY,
+	Especie VARCHAR (100) NOT NULL,
+	Alimento VARCHAR (100) NOT NULL,
+	Medida_Alimento FLOAT NOT NULL,
+	Temperatura FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Reptil(
+	ID_Reptil INT NOT NULL PRIMARY KEY,
+	Especie VARCHAR (100) NOT NULL,
+	Alimento VARCHAR (100) NOT NULL,
+	Medida_Alimento FLOAT NOT NULL,
+	Temperatura FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Otros(
+	ID_Otro INT NOT NULL PRIMARY KEY,
+	Especie VARCHAR (100) NOT NULL,
+	Alimento VARCHAR (100) NOT NULL,
+	Medida_Alimento FLOAT NOT NULL,
+	Notas VARCHAR (200) NOT NULL
+);
+GO
+CREATE TABLE Historial(
+	ID_Historial INT NOT NULL PRIMARY KEY,
+	Fk_Mascota INT NOT NULL,
+	Fk_Veterinario INT NOT NULL,
+	Fk_Proceso INT NOT NULL,
+	Descripcion VARCHAR (100) NOT NULL,
+	Fecha DATE NOT NULL
+);
+GO
+CREATE TABLE Servicio(
+	ID_Servicio INT NOT NULL PRIMARY KEY,
+	Nombre VARCHAR (100) NOT NULL,
+	Descripcion VARCHAR (100) NOT NULL,
+	Precio FLOAT NOT NULL
+);
+GO
+CREATE TABLE Cita(
+	ID_Cita INT NOT NULL PRIMARY KEY,
+	Fk_Mascota INT NOT NULL,
+	Fk_Veterinario INT NOT NULL,
+	Fk_Servicio INT NOT NULL,
+	Fecha_Cita DATE NOT NULL,
+	Hora TIME NOT NULL
+);
+GO
+CREATE TABLE Procedimiento(
+	ID_Procedimiento INT NOT NULL PRIMARY KEY,
+	Nombre VARCHAR (100) NOT NULL,
+	Descripcion VARCHAR (100) NOT NULL,
+	Internado BIT NOT NULL
+);
+GO
+CREATE TABLE Consulta(
+	ID_Consulta INT NOT NULL PRIMARY KEY,
+	Fk_Mascota INT NOT NULL,
+	Fk_Veterinario INT NOT NULL,
+	Fk_Procedimiento INT NOT NULL,
+	Dias_Internado INT NOT NULL,
+	Precio FLOAT NOT NULL,
+	Fecha_Cita DATE NOT NULL,
+	Hora TIME NOT NULL
+);
+GO
+CREATE TABLE Producto(
+	ID_Producto INT NOT NULL PRIMARY KEY,
+	Nombre_Producto VARCHAR (100) NOT NULL,
+	Descripcion VARCHAR (100) NOT NULL,
+	Fk_Stock INT NOT NULL
+);
+GO
+CREATE TABLE Inventario(
+	ID_Stock INT NOT NULL PRIMARY KEY,
+	InStock BIT NOT NULL,
+	Precio_U FLOAT NOT NULL,
+	Cantidad INT NOT NULL
+);
+GO
+CREATE TABLE Factura(
+	ID_Consulta INT NOT NULL PRIMARY KEY,
+	Fk_Cliente INT NOT NULL,
+	Total FLOAT NOT NULL,
+	Fecha_Factura DATE NOT NULL
+);
+GO
+CREATE TABLE Detalle_Factura(
+	ID_DetalleFactura INT NOT NULL PRIMARY KEY,
+	Fk_Factura INT NOT NULL,
+	Fk_Producto INT NOT NULL,
+	PrecioT FLOAT NOT NULL,
+	Cantidad INT NOT NULL,
+	Precio_U FLOAT NOT NULL
+);
+GO
+
+------------------------------------------------------------------------------------
