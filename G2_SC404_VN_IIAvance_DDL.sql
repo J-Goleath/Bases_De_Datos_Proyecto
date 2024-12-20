@@ -583,7 +583,7 @@ BEGIN
 END;
 GO
 
----se asegura que la mascota tenga la edad correcta---
+---Evitar edades incorrectas---
 
 CREATE TRIGGER ActualizarEdadMascota
 ON Mascota
@@ -617,7 +617,25 @@ EXEC EliminarCliente 9;
 ALTER TABLE Factura CHECK CONSTRAINT Fk_idCliente_1;
 ALTER TABLE Mascota CHECK CONSTRAINT Fk_idCliente;
 
----Probando InsertarHistorial ---
+---Probando Evitar edades incorrectas ---
 
 INSERT INTO Mascota (Fk_Cliente, Fk_Animal, Edad, Peso, Notas) VALUES (8, 3, -1, 7.0, 'Mascota de prueba');
 INSERT INTO Mascota (Fk_Cliente, Fk_Animal, Edad, Peso, Notas) VALUES (8, 3, 0, 7.0, 'Mascota de prueba');
+
+---Diccionario ---
+
+SELECT TABLE_NAME, TABLE_TYPE
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_CATALOG = 'Veterinaria_Proyecto'
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Cita'
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Cliente'
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Mascota'
