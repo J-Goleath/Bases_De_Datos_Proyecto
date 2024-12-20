@@ -245,3 +245,26 @@ insert into Detalle_Factura (Fk_Factura, Fk_Producto, PrecioT, Cantidad, Precio_
 insert into Detalle_Factura (Fk_Factura, Fk_Producto, PrecioT, Cantidad, Precio_U) values (8, 8, 11311, 16, 265014);
 insert into Detalle_Factura (Fk_Factura, Fk_Producto, PrecioT, Cantidad, Precio_U) values (9, 9, 309504, 99, 415037);
 insert into Detalle_Factura (Fk_Factura, Fk_Producto, PrecioT, Cantidad, Precio_U) values (10, 10, 669824, 24, 683950);
+
+select*from Cliente 
+select*from Veterinario 
+select*from Direccion 
+select*from Animal 
+select*from Mascota 
+select*from Canino 
+select*from Felino 
+select*from Granja 
+select*from Roedor 
+select*from Ave 
+select*from Pez 
+select*from Reptil 
+select*from Otros 
+select*from Historial 
+select*from Servicio 
+select*from Cita
+select*from Procedimiento
+select*from Consulta
+select*from Producto
+select*from Inventario
+select*from Factura
+select*from Detalle_Factura

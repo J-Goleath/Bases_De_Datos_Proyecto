@@ -366,19 +366,44 @@ BEGIN
     WHERE Fk_Mascota = @IdMascota
 END
 
------------------------------------- Llamado de procedimientos almacenados -----------------------------------------
+---Listar historial de citas---
 
+CREATE PROCEDURE ListarHistorialCitas
+@IdMascota INT
+AS
+BEGIN
+    SELECT * FROM Cita
+    WHERE Fk_Mascota = @IdMascota
+END
+
+------------------------------------ Llamado de procedimientos almacenados -----------------------------------------
+select*from Cliente
 EXEC InsertarCliente 'Juan', 'Pérez', 'juan.perez@email.com', '123-456-7890', 1;
+select*from Cliente
+----------------------------
+select*from Cliente
 EXEC ActualizarCliente 1, 'Juan Carlos', 'Pérez Sánchez', 'juan.carlos@email.com', '123-456-7891', 2;
+select*from Cliente
+----------------------------
+select*from Cliente
 ALTER TABLE Factura NOCHECK CONSTRAINT Fk_idCliente_1;
 ALTER TABLE Mascota NOCHECK CONSTRAINT Fk_idCliente;
 EXEC EliminarCliente 1;
 ALTER TABLE Factura CHECK CONSTRAINT Fk_idCliente_1;
 ALTER TABLE Mascota CHECK CONSTRAINT Fk_idCliente;
+select*from Cliente
+----------------------------
 EXEC ObtenerCliente 1;
-EXEC InsertarMascota 1, 1, 3, 15.5, 'Mascota activa y juguetona';
+EXEC ObtenerCliente 2;
+----------------------------
+EXEC InsertarMascota 2, 2, 1, 1, 'Mascota activa y juguetona';
+EXEC ObtenerMascota 11;
+----------------------------
+EXEC ListarHistorialCitas 1;
 EXEC InsertarCita 1, 1, 1, '2024-07-10', '10:00';
-EXEC ListarHistorialMascota 1;
+EXEC ListarHistorialCitas 1;
+----------------------------
+EXEC ListarHistorialMascota 2;
 
 ------------------------------------ Funciones ------------------------------------------------
 
@@ -433,7 +458,7 @@ BEGIN
 END;
 GO
 
----calcular el total de una factura---
+---Calcular el total de una factura---
 
 CREATE FUNCTION CalcularTotalFactura (
     @ID_Factura INT
@@ -458,3 +483,141 @@ SELECT dbo.CalcularPrecioServicio(1) AS PrecioServicio;
 SELECT dbo.ObtenerNombreCliente(6) AS NombreCliente;
 SELECT dbo.ObtenerCantidadProducto(1) AS CantidadProducto;
 SELECT dbo.CalcularTotalFactura(1) AS TotalFactura;
+
+------------------------------------ Vistas ------------------------------------------------
+
+---Mostrar clientes con sus mascotas---
+
+CREATE VIEW MascotasClientes
+AS
+SELECT
+    m.ID_Mascota,
+    c.Nombre AS NombreCliente,
+    c.Apellido AS ApellidoCliente,
+    m.Edad AS EdadMascota,
+    m.Peso AS PesoMascota,
+    m.Notas AS NotasMascota
+FROM Mascota m
+INNER JOIN Cliente c ON m.Fk_Cliente = c.ID_Cliente;
+GO
+
+---Mostrar citas agendadas con informacion de veterinario y servicio---
+
+CREATE VIEW CitasVeterinarios
+AS
+SELECT
+    ci.ID_Cita,
+    m.ID_Mascota,
+	c.Nombre AS NombreCliente,
+	c.Apellido AS ApellidoCliente,
+    v.Nombre AS NombreVeterinario,
+    v.Apellido AS ApellidoVeterinario,
+    s.Nombre AS NombreServicio,
+    ci.Fecha_Cita,
+    ci.Hora
+FROM Cita ci
+INNER JOIN Mascota m ON ci.Fk_Mascota = m.ID_Mascota
+INNER JOIN Veterinario v ON ci.Fk_Veterinario = v.ID_Veterinario
+INNER JOIN Servicio s ON ci.Fk_Servicio = s.ID_Servicio
+INNER JOIN Cliente c ON m.Fk_Cliente = c.ID_Cliente
+GO
+
+---Mostrar productos del inventario, cuanto queda de stock y su precio---
+
+CREATE VIEW ProductosInventario
+AS
+SELECT
+    p.ID_Producto,
+    p.Nombre_Producto,
+    p.Descripcion,
+    i.Cantidad AS CantidadEnStock,
+    i.Precio_U AS PrecioUnitario
+FROM Producto p
+INNER JOIN Inventario i ON p.Fk_Stock = i.ID_Stock;
+GO
+
+---Mostrar informacion detallada de facturas---
+
+CREATE VIEW FacturasDetalles
+AS
+SELECT
+    f.ID_Factura,
+    c.Nombre AS NombreCliente,
+    c.Apellido AS ApellidoCliente,
+	f.Fecha_Factura,
+    df.Cantidad AS CantidadProducto,
+	p.Nombre_Producto,
+	f.Total AS TotalFactura
+FROM Factura f
+INNER JOIN Cliente c ON f.Fk_Cliente = c.ID_Cliente
+INNER JOIN Detalle_Factura df ON f.ID_Factura = df.Fk_Factura
+INNER JOIN Producto p ON df.Fk_Producto = p.ID_Producto
+GO
+------------------------------------ Llamado de vistas -----------------------------------------
+
+SELECT * FROM MascotasClientes;
+SELECT * FROM CitasVeterinarios;
+SELECT * FROM ProductosInventario;
+SELECT * FROM FacturasDetalles;
+
+------------------------------------ Triggers ------------------------------------------------
+
+---Evita que se elimine un cliente que tenga mascotas asociadas---
+
+CREATE TRIGGER EvitarEliminarCliente
+ON Cliente
+INSTEAD OF DELETE
+AS
+BEGIN
+    DECLARE @ID_Cliente INT;
+    SELECT @ID_Cliente = ID_Cliente FROM deleted;
+
+    IF EXISTS (SELECT 1 FROM Mascota WHERE Fk_Cliente = @ID_Cliente)
+    BEGIN
+        RAISERROR('No se puede eliminar el cliente porque tiene mascotas asociadas.', 16, 1);
+    END
+    ELSE
+    BEGIN
+       DELETE FROM Cliente WHERE ID_Cliente = @ID_Cliente;
+    END
+END;
+GO
+
+---se asegura que la mascota tenga la edad correcta---
+
+CREATE TRIGGER ActualizarEdadMascota
+ON Mascota
+AFTER INSERT
+AS
+BEGIN
+    DECLARE @ID_Mascota INT, @Edad INT;
+    SELECT @ID_Mascota = ID_Mascota, @Edad = Edad FROM inserted;
+
+   IF @Edad <= 0
+     BEGIN
+          RAISERROR('La edad debe ser mayor a 0', 16, 1);
+          ROLLBACK TRANSACTION;
+     END;
+END;
+GO
+------------------------------------ Prueba Triggers ------------------------------------------------
+
+---Probando EvitarEliminarCliente con delete y utilizando funcion EliminarCliente, aun deshabilitando Constraints---
+
+ALTER TABLE Factura NOCHECK CONSTRAINT Fk_idCliente_1;
+ALTER TABLE Mascota NOCHECK CONSTRAINT Fk_idCliente;
+DELETE FROM Cliente WHERE ID_Cliente = 8;
+ALTER TABLE Factura CHECK CONSTRAINT Fk_idCliente_1;
+ALTER TABLE Mascota CHECK CONSTRAINT Fk_idCliente;
+
+
+ALTER TABLE Factura NOCHECK CONSTRAINT Fk_idCliente_1;
+ALTER TABLE Mascota NOCHECK CONSTRAINT Fk_idCliente;
+EXEC EliminarCliente 9;
+ALTER TABLE Factura CHECK CONSTRAINT Fk_idCliente_1;
+ALTER TABLE Mascota CHECK CONSTRAINT Fk_idCliente;
+
+---Probando InsertarHistorial ---
+
+INSERT INTO Mascota (Fk_Cliente, Fk_Animal, Edad, Peso, Notas) VALUES (8, 3, -1, 7.0, 'Mascota de prueba');
+INSERT INTO Mascota (Fk_Cliente, Fk_Animal, Edad, Peso, Notas) VALUES (8, 3, 0, 7.0, 'Mascota de prueba');
