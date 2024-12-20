@@ -266,7 +266,7 @@ select*from Detalle_Factura
 ------------------------------------ Procedimientos almacenados ------------------------------------------------
 
 ---Insertar un nuevo cliente en la tabla Cliente---
-CREATE PROCEDURE sp_InsertarCliente (
+CREATE PROCEDURE InsertarCliente (
     @Nombre VARCHAR(100),
     @Apellido VARCHAR(100),
     @Email VARCHAR(100),
@@ -282,7 +282,7 @@ GO
 
 ---Actualizar un cliente en la tabla Cliente---
 
-CREATE PROCEDURE sp_ActualizarCliente (
+CREATE PROCEDURE ActualizarCliente (
     @ID_Cliente INT,
     @Nombre VARCHAR(100),
     @Apellido VARCHAR(100),
@@ -304,7 +304,7 @@ GO
 
 ---Eliminar un cliente en la tabla Cliente---
 
-CREATE PROCEDURE sp_EliminarCliente (
+CREATE PROCEDURE EliminarCliente (
     @ID_Cliente INT
 )
 AS
@@ -315,7 +315,7 @@ GO
 
 ---Obtener informacion de un cliente en la tabla Cliente---
 
-CREATE PROCEDURE sp_ObtenerCliente (
+CREATE PROCEDURE ObtenerCliente (
     @ID_Cliente INT
 )
 AS
@@ -326,7 +326,7 @@ GO
 
 ---Insertar una nueva mascota en la tabla Mascota---
 
-CREATE PROCEDURE sp_InsertarMascota (
+CREATE PROCEDURE InsertarMascota (
     @Fk_Cliente INT,
     @Fk_TipoAnimal INT,
     @Edad INT,
@@ -335,14 +335,14 @@ CREATE PROCEDURE sp_InsertarMascota (
 )
 AS
 BEGIN
-    INSERT INTO Mascota (Fk_Cliente, Fk_TipoAnimal, Edad, Peso, Notas)
+    INSERT INTO Mascota (Fk_Cliente, Fk_Animal, Edad, Peso, Notas)
     VALUES (@Fk_Cliente, @Fk_TipoAnimal, @Edad, @Peso, @Notas);
 END;
 GO
 
 ---Insertar una nueva cita en la tabla Mascota---
 
-CREATE PROCEDURE sp_InsertarCita (
+CREATE PROCEDURE InsertarCita (
     @Fk_Mascota INT,
     @Fk_Veterinario INT,
     @Fk_Servicio INT,
@@ -368,10 +368,93 @@ END
 
 ------------------------------------ Llamado de procedimientos almacenados -----------------------------------------
 
-EXEC sp_InsertarCliente 'Juan', 'Pérez', 'juan.perez@email.com', '123-456-7890', 1;
-EXEC sp_ActualizarCliente 1, 'Juan Carlos', 'Pérez Sánchez', 'juan.carlos@email.com', '123-456-7891', 2;
-EXEC sp_EliminarCliente 1;
-EXEC sp_ObtenerCliente 1;
-EXEC sp_InsertarMascota 1, 1, 3, 15.5, 'Mascota activa y juguetona';
-EXEC sp_InsertarCita 1, 1, 1, '2024-07-10', '10:00';
+EXEC InsertarCliente 'Juan', 'Pérez', 'juan.perez@email.com', '123-456-7890', 1;
+EXEC ActualizarCliente 1, 'Juan Carlos', 'Pérez Sánchez', 'juan.carlos@email.com', '123-456-7891', 2;
+ALTER TABLE Factura NOCHECK CONSTRAINT Fk_idCliente_1;
+ALTER TABLE Mascota NOCHECK CONSTRAINT Fk_idCliente;
+EXEC EliminarCliente 1;
+ALTER TABLE Factura CHECK CONSTRAINT Fk_idCliente_1;
+ALTER TABLE Mascota CHECK CONSTRAINT Fk_idCliente;
+EXEC ObtenerCliente 1;
+EXEC InsertarMascota 1, 1, 3, 15.5, 'Mascota activa y juguetona';
+EXEC InsertarCita 1, 1, 1, '2024-07-10', '10:00';
 EXEC ListarHistorialMascota 1;
+
+------------------------------------ Funciones ------------------------------------------------
+
+---Calcular el precio de un servicio específico---
+
+CREATE FUNCTION CalcularPrecioServicio (
+    @ID_Servicio INT
+)
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @Precio FLOAT;
+
+    SELECT @Precio = Precio
+    FROM Servicio
+    WHERE ID_Servicio = @ID_Servicio;
+
+    RETURN @Precio;
+
+END;
+GO
+
+---Obtener nombre de cliente usando ID---
+
+CREATE FUNCTION ObtenerNombreCliente (
+    @ID_Cliente INT
+)
+RETURNS VARCHAR(201)
+AS
+BEGIN
+    DECLARE @NombreCompleto VARCHAR(201);
+    SELECT @NombreCompleto = Nombre + ' ' + Apellido FROM Cliente WHERE ID_Cliente = @ID_Cliente;
+
+    RETURN @NombreCompleto;
+END;
+GO
+
+---Obtener cantidad de un producto del inventario---
+
+CREATE FUNCTION ObtenerCantidadProducto (
+    @ID_Producto INT
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @Cantidad INT;
+    SELECT @Cantidad = i.Cantidad FROM Producto AS p
+	INNER JOIN Inventario AS i ON p.Fk_Stock = i.ID_Stock
+    WHERE p.ID_Producto = @ID_Producto;
+
+    RETURN @Cantidad;
+END;
+GO
+
+---calcular el total de una factura---
+
+CREATE FUNCTION CalcularTotalFactura (
+    @ID_Factura INT
+)
+RETURNS FLOAT
+AS
+BEGIN
+   DECLARE @Total FLOAT;
+
+    SELECT @Total = SUM(df.Precio_U * df.Cantidad)
+    FROM Factura AS f
+    INNER JOIN Detalle_Factura AS df ON f.ID_Factura = df.Fk_Factura
+    WHERE f.ID_Factura = @ID_Factura;
+
+    RETURN @Total;
+END;
+GO
+
+------------------------------------ Llamado de funciones -----------------------------------------
+
+SELECT dbo.CalcularPrecioServicio(1) AS PrecioServicio;
+SELECT dbo.ObtenerNombreCliente(6) AS NombreCliente;
+SELECT dbo.ObtenerCantidadProducto(1) AS CantidadProducto;
+SELECT dbo.CalcularTotalFactura(1) AS TotalFactura;
