@@ -237,26 +237,3 @@ ALTER TABLE Producto ADD CONSTRAINT Fk_idStock FOREIGN KEY (Fk_Stock) REFERENCES
 ALTER TABLE Factura ADD	CONSTRAINT Fk_idCliente_1 FOREIGN KEY (Fk_Cliente) REFERENCES Cliente (ID_Cliente);
 ALTER TABLE Detalle_Factura ADD	CONSTRAINT Fk_idFactura FOREIGN KEY (Fk_Factura) REFERENCES Factura (ID_Factura);
 ALTER TABLE Detalle_Factura ADD	CONSTRAINT Fk_idProducto FOREIGN KEY (Fk_Producto) REFERENCES Producto (ID_Producto);
-
-select*from Cliente 
-select*from Veterinario 
-select*from Direccion 
-select*from Animal 
-select*from Mascota 
-select*from Canino 
-select*from Felino 
-select*from Granja 
-select*from Roedor 
-select*from Ave 
-select*from Pez 
-select*from Reptil 
-select*from Otros 
-select*from Historial 
-select*from Servicio 
-select*from Cita
-select*from Procedimiento
-select*from Consulta
-select*from Producto
-select*from Inventario
-select*from Factura
-select*from Detalle_Factura
