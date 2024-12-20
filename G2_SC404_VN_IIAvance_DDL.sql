@@ -217,7 +217,7 @@ CREATE TABLE Detalle_Factura(
 );
 GO
 
-------------------------------------------------------------------------------------
+------------------------------------ Constratins para las FK------------------------------------------------
 
 ALTER TABLE Cliente ADD	CONSTRAINT FK_idDireccion FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
 ALTER TABLE Cliente ADD	CONSTRAINT FK_idDireccion_1 FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
@@ -237,6 +237,8 @@ ALTER TABLE Producto ADD CONSTRAINT Fk_idStock FOREIGN KEY (Fk_Stock) REFERENCES
 ALTER TABLE Factura ADD	CONSTRAINT Fk_idCliente_1 FOREIGN KEY (Fk_Cliente) REFERENCES Cliente (ID_Cliente);
 ALTER TABLE Detalle_Factura ADD	CONSTRAINT Fk_idFactura FOREIGN KEY (Fk_Factura) REFERENCES Factura (ID_Factura);
 ALTER TABLE Detalle_Factura ADD	CONSTRAINT Fk_idProducto FOREIGN KEY (Fk_Producto) REFERENCES Producto (ID_Producto);
+
+------------------------------------ Revision de tablas------------------------------------------------
 
 select*from Cliente 
 select*from Veterinario 
@@ -260,3 +262,116 @@ select*from Producto
 select*from Inventario
 select*from Factura
 select*from Detalle_Factura
+
+------------------------------------ Procedimientos almacenados ------------------------------------------------
+
+---Insertar un nuevo cliente en la tabla Cliente---
+CREATE PROCEDURE sp_InsertarCliente (
+    @Nombre VARCHAR(100),
+    @Apellido VARCHAR(100),
+    @Email VARCHAR(100),
+    @Telefono VARCHAR(15),
+    @Fk_Direccion INT
+)
+AS
+BEGIN
+    INSERT INTO Cliente (Nombre, Apellido, Email, Telefono, Fk_Direccion)
+    VALUES (@Nombre, @Apellido, @Email, @Telefono, @Fk_Direccion);
+END;
+GO
+
+---Actualizar un cliente en la tabla Cliente---
+
+CREATE PROCEDURE sp_ActualizarCliente (
+    @ID_Cliente INT,
+    @Nombre VARCHAR(100),
+    @Apellido VARCHAR(100),
+    @Email VARCHAR(100),
+    @Telefono VARCHAR(15),
+    @Fk_Direccion INT
+)
+AS
+BEGIN
+    UPDATE Cliente
+    SET Nombre = @Nombre,
+        Apellido = @Apellido,
+        Email = @Email,
+        Telefono = @Telefono,
+        Fk_Direccion = @Fk_Direccion
+    WHERE ID_Cliente = @ID_Cliente;
+END;
+GO
+
+---Eliminar un cliente en la tabla Cliente---
+
+CREATE PROCEDURE sp_EliminarCliente (
+    @ID_Cliente INT
+)
+AS
+BEGIN
+    DELETE FROM Cliente WHERE ID_Cliente = @ID_Cliente;
+END;
+GO
+
+---Obtener informacion de un cliente en la tabla Cliente---
+
+CREATE PROCEDURE sp_ObtenerCliente (
+    @ID_Cliente INT
+)
+AS
+BEGIN
+    SELECT * FROM Cliente WHERE ID_Cliente = @ID_Cliente;
+END;
+GO
+
+---Insertar una nueva mascota en la tabla Mascota---
+
+CREATE PROCEDURE sp_InsertarMascota (
+    @Fk_Cliente INT,
+    @Fk_TipoAnimal INT,
+    @Edad INT,
+    @Peso FLOAT,
+    @Notas VARCHAR(200)
+)
+AS
+BEGIN
+    INSERT INTO Mascota (Fk_Cliente, Fk_TipoAnimal, Edad, Peso, Notas)
+    VALUES (@Fk_Cliente, @Fk_TipoAnimal, @Edad, @Peso, @Notas);
+END;
+GO
+
+---Insertar una nueva cita en la tabla Mascota---
+
+CREATE PROCEDURE sp_InsertarCita (
+    @Fk_Mascota INT,
+    @Fk_Veterinario INT,
+    @Fk_Servicio INT,
+    @Fecha_Cita DATE,
+    @Hora TIME
+)
+AS
+BEGIN
+    INSERT INTO Cita (Fk_Mascota, Fk_Veterinario, Fk_Servicio, Fecha_Cita, Hora)
+    VALUES (@Fk_Mascota, @Fk_Veterinario, @Fk_Servicio, @Fecha_Cita, @Hora);
+END;
+GO
+
+---Listar historial medico---
+
+CREATE PROCEDURE ListarHistorialMascota
+@IdMascota INT
+AS
+BEGIN
+    SELECT * FROM Historial
+    WHERE Fk_Mascota = @IdMascota
+END
+
+------------------------------------ Llamado de procedimientos almacenados -----------------------------------------
+
+EXEC sp_InsertarCliente 'Juan', 'Pérez', 'juan.perez@email.com', '123-456-7890', 1;
+EXEC sp_ActualizarCliente 1, 'Juan Carlos', 'Pérez Sánchez', 'juan.carlos@email.com', '123-456-7891', 2;
+EXEC sp_EliminarCliente 1;
+EXEC sp_ObtenerCliente 1;
+EXEC sp_InsertarMascota 1, 1, 3, 15.5, 'Mascota activa y juguetona';
+EXEC sp_InsertarCita 1, 1, 1, '2024-07-10', '10:00';
+EXEC ListarHistorialMascota 1;
