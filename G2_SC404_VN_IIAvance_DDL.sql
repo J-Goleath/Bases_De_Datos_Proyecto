@@ -221,7 +221,7 @@ GO
 
 ALTER TABLE Cliente ADD	CONSTRAINT FK_idDireccion FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
 ALTER TABLE Cliente ADD	CONSTRAINT FK_idDireccion_1 FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
-ALTER TABLE Veterinario ADD	CONSTRAINT FK_idDireccion_2 FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
+ALTER TABLE Veterinario ADD CONSTRAINT FK_idDireccion_2 FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
 ALTER TABLE Mascota ADD	CONSTRAINT Fk_idCliente FOREIGN KEY (Fk_Cliente) REFERENCES Cliente (ID_Cliente);
 ALTER TABLE Mascota ADD	CONSTRAINT Fk_idAnimal FOREIGN KEY (Fk_Animal) REFERENCES Animal (ID_Animal);
 ALTER TABLE Historial ADD CONSTRAINT Fk_idMascota FOREIGN KEY (Fk_Mascota) REFERENCES Mascota (ID_Mascota);
