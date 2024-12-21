@@ -232,7 +232,7 @@ CREATE TABLE Factura(
 GO
 CREATE TABLE Detalle_Factura(
 	IDtabla_DetalleFactura VARCHAR(3) DEFAULT 'DFF' NOT NULL,
-	ID_DetalleFactura INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	ID_DetalleFactura INT IDENTITY(1,1) NOT NULL,
 	Fk_Factura INT NOT NULL,
 	Fk_Producto INT NOT NULL,
 	PrecioT FLOAT NOT NULL,
@@ -241,27 +241,6 @@ CREATE TABLE Detalle_Factura(
 	primary key (IDtabla_DetalleFactura, ID_DetalleFactura)
 );
 GO
-
------------------------------------- Constratins para las FK------------------------------------------------
-
-ALTER TABLE Cliente ADD	CONSTRAINT FK_idDireccion FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
-ALTER TABLE Cliente ADD	CONSTRAINT FK_idDireccion_1 FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
-ALTER TABLE Veterinario ADD CONSTRAINT FK_idDireccion_2 FOREIGN KEY (Fk_Direccion) REFERENCES Direccion (ID_Direccion);
-ALTER TABLE Mascota ADD	CONSTRAINT Fk_idCliente FOREIGN KEY (Fk_Cliente) REFERENCES Cliente (ID_Cliente);
-ALTER TABLE Mascota ADD	CONSTRAINT Fk_idAnimal FOREIGN KEY (Fk_Animal) REFERENCES Animal (ID_Animal);
-ALTER TABLE Historial ADD CONSTRAINT Fk_idMascota FOREIGN KEY (Fk_Mascota) REFERENCES Mascota (ID_Mascota);
-ALTER TABLE Historial ADD CONSTRAINT Fk_idVeterinario FOREIGN KEY (Fk_Veterinario) REFERENCES Veterinario (ID_Veterinario);
-ALTER TABLE Historial ADD CONSTRAINT Fk_idProceso FOREIGN KEY (Fk_Proceso) REFERENCES Procedimiento (ID_Procedimiento);
-ALTER TABLE Cita ADD CONSTRAINT Fk_idMascota_1 FOREIGN KEY (Fk_Mascota) REFERENCES Mascota (ID_Mascota);
-ALTER TABLE Cita ADD CONSTRAINT Fk_idVeterinario_1 FOREIGN KEY (Fk_Veterinario) REFERENCES Veterinario (ID_Veterinario);
-ALTER TABLE Cita ADD CONSTRAINT Fk_idServicio FOREIGN KEY (Fk_Servicio) REFERENCES Servicio (ID_Servicio);
-ALTER TABLE Consulta ADD CONSTRAINT Fk_idMascota_2 FOREIGN KEY (Fk_Mascota) REFERENCES Mascota (ID_Mascota);
-ALTER TABLE Consulta ADD CONSTRAINT Fk_idVeterinario_2 FOREIGN KEY (Fk_Veterinario) REFERENCES Veterinario (ID_Veterinario);
-ALTER TABLE Consulta ADD CONSTRAINT Fk_idProcedimiento FOREIGN KEY (Fk_Procedimiento) REFERENCES Procedimiento (ID_Procedimiento);
-ALTER TABLE Producto ADD CONSTRAINT Fk_idStock FOREIGN KEY (Fk_Stock) REFERENCES Inventario (ID_Stock);
-ALTER TABLE Factura ADD	CONSTRAINT Fk_idCliente_1 FOREIGN KEY (Fk_Cliente) REFERENCES Cliente (ID_Cliente);
-ALTER TABLE Detalle_Factura ADD	CONSTRAINT Fk_idFactura FOREIGN KEY (Fk_Factura) REFERENCES Factura (ID_Factura);
-ALTER TABLE Detalle_Factura ADD	CONSTRAINT Fk_idProducto FOREIGN KEY (Fk_Producto) REFERENCES Producto (ID_Producto);
 
 ------------------------------------ Revision de tablas------------------------------------------------
 
@@ -389,7 +368,8 @@ AS
 BEGIN
     SELECT * FROM Historial
     WHERE Fk_Mascota = @IdMascota
-END
+END;
+GO
 
 ---Listar historial de citas---
 
@@ -399,7 +379,8 @@ AS
 BEGIN
     SELECT * FROM Cita
     WHERE Fk_Mascota = @IdMascota
-END
+END;
+GO
 
 ------------------------------------ Llamado de procedimientos almacenados -----------------------------------------
 select*from Cliente
@@ -411,11 +392,7 @@ EXEC ActualizarCliente 1, 'Juan Carlos', 'Pérez Sánchez', 'juan.carlos@email.c
 select*from Cliente
 ----------------------------
 select*from Cliente
-ALTER TABLE Factura NOCHECK CONSTRAINT Fk_idCliente_1;
-ALTER TABLE Mascota NOCHECK CONSTRAINT Fk_idCliente;
 EXEC EliminarCliente 1;
-ALTER TABLE Factura CHECK CONSTRAINT Fk_idCliente_1;
-ALTER TABLE Mascota CHECK CONSTRAINT Fk_idCliente;
 select*from Cliente
 ----------------------------
 EXEC ObtenerCliente 1;
@@ -629,18 +606,10 @@ GO
 
 ---Probando EvitarEliminarCliente con delete y utilizando funcion EliminarCliente, aun deshabilitando Constraints---
 
-ALTER TABLE Factura NOCHECK CONSTRAINT Fk_idCliente_1;
-ALTER TABLE Mascota NOCHECK CONSTRAINT Fk_idCliente;
 DELETE FROM Cliente WHERE ID_Cliente = 8;
-ALTER TABLE Factura CHECK CONSTRAINT Fk_idCliente_1;
-ALTER TABLE Mascota CHECK CONSTRAINT Fk_idCliente;
 
-
-ALTER TABLE Factura NOCHECK CONSTRAINT Fk_idCliente_1;
-ALTER TABLE Mascota NOCHECK CONSTRAINT Fk_idCliente;
 EXEC EliminarCliente 9;
-ALTER TABLE Factura CHECK CONSTRAINT Fk_idCliente_1;
-ALTER TABLE Mascota CHECK CONSTRAINT Fk_idCliente;
+
 
 ---Probando Evitar edades incorrectas ---
 
